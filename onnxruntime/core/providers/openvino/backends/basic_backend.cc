@@ -54,6 +54,11 @@ BasicBackend::BasicBackend(const ONNX_NAMESPACE::ModelProto& model_proto,
       config["VPU_COPY_OPTIMIZATION"] = CONFIG_VALUE(NO);
     }
   }
+
+  // single thread on CPU
+  config["CPU_THREADS_NUM"] = "1";
+  config["CPU_THROUGHPUT_STREAMS"] = "1";
+
   std::string& hw_target = (global_context_.device_id != "") ? global_context_.device_id : global_context_.device_type;
   try {
     exe_network = global_context_.ie_core.LoadNetwork(*ie_cnn_network_, hw_target, config);
