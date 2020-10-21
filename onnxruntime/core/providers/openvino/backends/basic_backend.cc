@@ -57,7 +57,7 @@ BasicBackend::BasicBackend(const ONNX_NAMESPACE::ModelProto& model_proto,
   std::string& hw_target = (global_context_.device_id != "") ? global_context_.device_id : global_context_.device_type;
   try {
     exe_network = global_context_.ie_core.LoadNetwork(*ie_cnn_network_, hw_target, config);
-  } catch (InferenceEngine::details::InferenceEngineException e) {
+  } catch (const InferenceEngine::details::InferenceEngineException &e) {
     ORT_THROW(log_tag + " Exception while Loading Network for graph: " + subgraph_context_.subgraph_name + ": " +  e.what());
   } catch (...) {
     ORT_THROW(log_tag + " Exception while Loading Network for graph " + subgraph_context_.subgraph_name);
@@ -67,7 +67,7 @@ BasicBackend::BasicBackend(const ONNX_NAMESPACE::ModelProto& model_proto,
   // Create infer request
   try {
     infer_request_ = exe_network.CreateInferRequestPtr();
-  } catch (InferenceEngine::details::InferenceEngineException e) {
+  } catch (const InferenceEngine::details::InferenceEngineException &e) {
     ORT_THROW(log_tag + " Exception while creating InferRequest object: " + e.what());
   } catch (...) {
     ORT_THROW(log_tag + "Exception while creating InferRequest object");
@@ -90,7 +90,7 @@ void BasicBackend::StartAsyncInference(Ort::CustomOpApi& ort, OrtKernelContext* 
     try {
       graph_input_blob = infer_request_->GetBlob(input_name);
 
-    } catch (InferenceEngine::details::InferenceEngineException e) {
+    } catch (const InferenceEngine::details::InferenceEngineException &e) {
       ORT_THROW(log_tag + " Cannot access IE Blob for input: " + input_name + e.what());
     } catch (...) {
       ORT_THROW(log_tag + " Cannot access IE Blob for input: " + input_name);
@@ -102,7 +102,7 @@ void BasicBackend::StartAsyncInference(Ort::CustomOpApi& ort, OrtKernelContext* 
   // Start Async inference
   try {
     infer_request_->StartAsync();
-  } catch (InferenceEngine::details::InferenceEngineException e) {
+  } catch (const InferenceEngine::details::InferenceEngineException &e) {
     ORT_THROW(log_tag + " Couldn't start Inference: " + e.what());
   } catch (...) {
     ORT_THROW(log_tag + " Couldn't start Inference");
@@ -115,7 +115,7 @@ void BasicBackend::CompleteAsyncInference(Ort::CustomOpApi& ort, OrtKernelContex
   // Wait for Async inference completion
   try {
     infer_request_->Wait(InferenceEngine::IInferRequest::WaitMode::RESULT_READY);
-  } catch (InferenceEngine::details::InferenceEngineException e) {
+  } catch (const InferenceEngine::details::InferenceEngineException &e) {
     ORT_THROW(log_tag + " Exception with completing Inference: " + e.what());
   } catch (...) {
     ORT_THROW(log_tag + " Exception with completing Inference");
@@ -129,7 +129,7 @@ void BasicBackend::CompleteAsyncInference(Ort::CustomOpApi& ort, OrtKernelContex
     auto output_name = output_info_iter->first;
     try {
       graph_output_blob = infer_request_->GetBlob(output_name);
-    } catch (InferenceEngine::details::InferenceEngineException e) {
+    } catch (const InferenceEngine::details::InferenceEngineException &e) {
       ORT_THROW(log_tag + " Cannot access IE Blob for output: " + output_name + e.what());
     } catch (...) {
       ORT_THROW(log_tag + " Cannot access IE Blob for output: " + output_name);
